@@ -11,6 +11,8 @@ argparse = "^1.4.0"
 torch = "^2.6.0"
 numpy = "^2.2.4"
 torchvision = "^0.21.0"
+matplotlib = "^3.10.1"
+fastapi = {extras = ["standard"], version = "^0.115.11"}
 
 
 [build-system]

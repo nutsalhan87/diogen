@@ -15,10 +15,13 @@ options:
   -h, --help            show this help message and exit
   -s {detect,type,number}, --step {detect,type,number}
                         Модель, которую необходимо обучить/дообучить. (default: None)
-  -r, --retrain
+  -r, --retrain         Необходимо ли переообучить модель вместо дообучения. (default: False)
   -l LEARNING_RATE, --learning-rate LEARNING_RATE
+                        Темп обучения. (default: 0.001)
   -b BATCH_SIZE, --batch-size BATCH_SIZE
+                        Размер батча. (default: 64)
   -e EPOCHS, --epochs EPOCHS
+                        Количество эпох обучения. (default: 20)
   -p PART, --part PART  Доля данных, которые станут тренировочными. Значение должно быть в пределах (0; 1]. (default: 0.8)
 ```
 
@@ -30,13 +33,19 @@ options:
 
 Основная система. Для работы необходимы обученные модели, хранящиеся в директории `models`.
 
-```
-usage: diogen.py [-h] -n NUMBER -i PATH_TO_IMG
+Является сервисом. Документацию к нему можно получить по адресу `127.0.0.1:[port]/docs`.
 
-Диоген. Программа позволяет найти на изображении грузовик, определить его тип и прочитать автомобильный номер.
+```
+usage: diogen.py [-h] [-H HOST] -p PORT [-w WORKERS] [-a]
+
+Диоген. Программа позволяет найти на изображении грузовик, определить его тип и прочитать автомобильный номер
 
 options:
   -h, --help            show this help message and exit
-  -n NUMBER, --number NUMBER
-  -i PATH_TO_IMG, --image PATH_TO_IMG
+  -H HOST, --host HOST  Адрес сервиса. (default: 127.0.0.1)
+  -p PORT, --port PORT  Порт сервиса. (default: None)
+  -w WORKERS, --workers WORKERS
+                        Количество потоков, обрабатывающих подключения. (default: 1)
+  -a, --use-accelerator
+                        Использовать ли ускоритель, если он доступен. (default: False)
 ```
