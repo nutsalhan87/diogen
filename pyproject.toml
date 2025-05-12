@@ -13,6 +13,8 @@ numpy = "^2.2.4"
 torchvision = "^0.21.0"
 matplotlib = "^3.10.1"
 fastapi = {extras = ["standard"], version = "^0.115.11"}
+ultralytics = "^8.3.120"
+tornado = "^6.4.2"
 
 
 [build-system]

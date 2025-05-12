@@ -1,4 +1,7 @@
 .venv
 data
-models
+runs
+train_crnn
+yolo11s.pt
+logs
 __pycache__
