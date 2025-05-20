@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "diogen"
+version = "0.1.0"
+description = "Detect truck and read its registration plate"
+license = "MIT"
+authors = ["nutsalhan87 <nutsalhan87@yandex.ru>"]
+readme = "README.md"
+packages = [{include = "diogen", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+argparse = "^1.4.0"
+torch = "^2.6.0"
+numpy = "^2.2.4"
+torchvision = "^0.21.0"
+matplotlib = "^3.10.1"
+fastapi = {extras = ["standard"], version = "^0.115.11"}
+ultralytics = "^8.3.120"
+tornado = "^6.4.2"
+psutil = "^7.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
