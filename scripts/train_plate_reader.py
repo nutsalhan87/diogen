@@ -3,17 +3,18 @@ import torch
 import argparse
 import torch.nn as nn
 import torch.optim as optim
+import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from torchvision.io import read_image
 from difflib import SequenceMatcher
 from pathlib import Path
-import matplotlib.pyplot as plt
-from ...model.plate import CRNN, resize_plate, ALPHABET, BLANK_IDX, PLATE_INPUT_SIZE
+from diogen.model.plate import CRNN, resize_plate, ALPHABET, BLANK_IDX
 
 # --------------------- CONFIG --------------------- #
 DATASET_ROOT = Path("data/plates_cropped")
 TRAIN_DIR = DATASET_ROOT / "train"
 VAL_DIR = DATASET_ROOT / "val"
+TEST_DIR = DATASET_ROOT / "test"
 OUTPUT_DIR = Path("train_crnn")
 PLOT_DIR = OUTPUT_DIR / "plot"
 CHECKPOINT_DIR = OUTPUT_DIR / "checkpoints"
@@ -141,14 +142,46 @@ def validate_epoch(model: CRNN, loader: DataLoader, criterion, device):
     print(f"Val Loss: {total_loss:.4f}, Accuracy: {acc:.4f}, CER: {avg_cer:.4f}")
     return total_loss, acc, avg_cer
 
+# --------------------- TEST FUNCTION --------------------- #
+def test(model: CRNN, loader: DataLoader, criterion, device):
+    model.eval()
+    total_loss, correct, total = 0.0, 0, 0
+    total_cer = 0.0
+
+    with torch.no_grad():
+        for images, targets, target_lengths, label_texts in loader:
+            images = images.to(device)
+            targets = targets.to(device)
+
+            logits = model(images)
+            input_lengths = torch.full(size=(logits.size(1),), fill_value=logits.size(0), dtype=torch.long).to(device)
+
+            loss = criterion(logits, targets, input_lengths, target_lengths)
+            total_loss += loss.item()
+
+            predictions = model.decode_with_confidence(logits)
+            for (pred, _), ref in zip(predictions, label_texts):
+                if pred == ref:
+                    correct += 1
+                total_cer += cer(ref, pred)
+                total += 1
+
+    acc = correct / total
+    avg_cer = total_cer / total
+    print(f"Test Loss: {total_loss:.4f}, Accuracy: {acc:.4f}, CER: {avg_cer:.4f}")
+
 # --------------------- CLI --------------------- #
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--batch', type=int, default=8)
-    parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu')
-    parser.add_argument('--lr', type=float, default=1e-4)
-    parser.add_argument('--val', action='store_true')
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--val', action='store_true', help="Запустить валидацию")
+    group.add_argument('--test', action='store_true', help="Запустить тестирование")
+
+    parser.add_argument('--epochs', type=int, default=50, help="Количество эпох")
+    parser.add_argument('--batch', type=int, default=8, help="Размер батча")
+    parser.add_argument('--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu', help="Устройство")
+    parser.add_argument('--lr', type=float, default=1e-4, help="Шаг обучения")
     args = parser.parse_args()
 
     device = torch.device(args.device)
@@ -164,9 +197,14 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=args.batch, shuffle=True, collate_fn=collate_fn)
     val_ds = PlatesDataset(str(VAL_DIR))
     val_loader = DataLoader(val_ds, batch_size=args.batch, shuffle=False, collate_fn=collate_fn)
+    test_ds = PlatesDataset(str(TEST_DIR))
+    test_loader = DataLoader(test_ds, batch_size=args.batch, shuffle=False, collate_fn=collate_fn)
 
     if args.val:
         validate_epoch(model, val_loader, criterion, device)
+        return
+    elif args.test:
+        test(model, test_loader, criterion, device)
         return
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr)

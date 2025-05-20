@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "diogen"
 version = "0.1.0"
-description = ""
+description = "Detect truck and read its registration plate"
+license = "MIT"
 authors = ["nutsalhan87 <nutsalhan87@yandex.ru>"]
 readme = "README.md"
+packages = [{include = "diogen", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -15,6 +17,7 @@ matplotlib = "^3.10.1"
 fastapi = {extras = ["standard"], version = "^0.115.11"}
 ultralytics = "^8.3.120"
 tornado = "^6.4.2"
+psutil = "^7.0.0"
 
 
 [build-system]

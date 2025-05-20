@@ -1,25 +1,23 @@
 import torch
-import torchvision
 
-from ..common.types import Truck, DiogenAnswer
-from ..common.draw_boxes import draw_boxes_on_image
-from ..model.truck import TruckDetector
-from ..model.plate import PlateReader
+from diogen.common.types import Truck, PipelineAnswer
+from diogen.model.truck import TruckDetector
+from diogen.model.plate import PlateReader
 
-class Diogen:
+class Pipeline:
     def __init__(self) -> None:
         self.truck_detector = TruckDetector()
         self.plate_reader = PlateReader()
+        self._device = "cpu"
 
     def to(self, device):
+        self._device = device
         self.truck_detector.to(device)
         self.plate_reader.to(device)
 
-    def predict(self, img_stream: bytes) -> DiogenAnswer:
-        img = torchvision.io.decode_image(
-            torch.frombuffer(img_stream, dtype=torch.uint8),
-            torchvision.io.ImageReadMode.RGB,
-        ).unsqueeze(0) / 255.
+    def predict(self, img: torch.Tensor) -> PipelineAnswer:
+        # imgs: (3, H, W), dtype=float
+        img = img.unsqueeze(0).to(self._device)
 
         truck_boxes = self.truck_detector.predict(img)[0]
 
@@ -39,8 +37,5 @@ class Diogen:
             
             trucks.append(Truck(xyxy=truck_box, plates=plates))
 
-        draw_boxes_on_image(img, trucks)
         return trucks
 
-
-diogen = Diogen()

@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import torch
 
-from .types import DiogenAnswer, PlateReadSuccess
+from diogen.common.types import PipelineAnswer, PlateReadSuccess
 
-def draw_boxes_on_image(image_tensor: torch.Tensor, diogen_answer: DiogenAnswer) -> None:
+def draw_boxes_on_image(image_tensor: torch.Tensor, pipeline_answer: PipelineAnswer) -> None:
     # Преобразуем тензор в numpy array и меняем оси для matplotlib (C, H, W) -> (H, W, C)
     image = image_tensor.squeeze(0).permute(1, 2, 0).cpu().numpy()
     
@@ -18,7 +18,7 @@ def draw_boxes_on_image(image_tensor: torch.Tensor, diogen_answer: DiogenAnswer)
     plate_color = 'green'
     text_color = 'white'
     
-    for truck in diogen_answer:
+    for truck in pipeline_answer:
         # Рисуем bounding box для грузовика
         (x1, y1), (x2, y2) = truck.xyxy
         width = x2 - x1

@@ -1,9 +1,9 @@
 from typing import List, Literal, Tuple
 
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, Field, NonNegativeInt
 
 
-Coordinate = Tuple[PositiveInt, PositiveInt]
+Coordinate = Tuple[NonNegativeInt, NonNegativeInt]
 BoxCoordinates = Tuple[Coordinate, Coordinate]
 
 
@@ -29,4 +29,4 @@ class Truck(BaseModel):
     plates: List[Plate]
 
 
-DiogenAnswer = List[Truck]
+PipelineAnswer = List[Truck]

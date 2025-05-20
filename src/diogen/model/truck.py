@@ -2,8 +2,8 @@ from typing import List
 import torch
 from ultralytics import YOLO
 
-from ..common.types import BoxCoordinates
-from ..common.letterbox import LetterboxTransform
+from diogen.common.types import BoxCoordinates
+from diogen.common.letterbox import LetterboxTransform
 
 IMG_SIZE = 640
 MIN_CONF = 0.75
@@ -29,7 +29,11 @@ class TruckDetector:
         # imgs: (B, 3, H, W)
         letterbox = LetterboxTransform(imgs, IMG_SIZE)
         results = self.model.predict(
-            letterbox.resized, imgsz=IMG_SIZE, conf=MIN_CONF, classes=[self._truck_class]
+            letterbox.resized,
+            imgsz=IMG_SIZE,
+            conf=MIN_CONF,
+            classes=[self._truck_class],
+            verbose=False,
         )
 
         each_result_boxes = []
@@ -39,7 +43,7 @@ class TruckDetector:
                 continue
             boxes = result.boxes.cpu()
 
-            original_boxes = letterbox.reverse_boxes(batch_idx, boxes.xyxy) # type: ignore
+            original_boxes = letterbox.reverse_boxes(batch_idx, boxes.xyxy)  # type: ignore
 
             result_boxes: List[BoxCoordinates] = []
             for xyxy in original_boxes:

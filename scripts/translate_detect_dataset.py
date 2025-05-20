@@ -1,8 +1,8 @@
 import json
 import random
+import yaml
 from pathlib import Path
 from typing import List, Tuple
-import yaml
 from concurrent.futures import ProcessPoolExecutor
 
 from PIL import Image

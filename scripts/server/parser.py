@@ -1,8 +1,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    prog="diogen.py",
-    description="Диоген. Программа позволяет найти на изображении грузовик, определить его тип и прочитать автомобильный номер",
+    description="Программа позволяет найти на изображении грузовики и прочитать их автомобильный номер",
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 parser.add_argument(
@@ -14,7 +13,7 @@ parser.add_argument(
     "--workers",
     type=int,
     default=1,
-    help="Количество потоков, обрабатывающих подключения.",
+    help="Количество обработчиков запросов.",
 )
 parser.add_argument(
     "-a",

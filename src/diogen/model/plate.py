@@ -6,8 +6,8 @@ from ultralytics import YOLO
 from torchvision.models import resnet18, ResNet18_Weights
 from torchvision.transforms.v2 import functional as F
 
-from ..common.types import Plate, PlateReadSuccess, PlateReadFailed
-from ..common.letterbox import LetterboxTransform
+from diogen.common.types import Plate, PlateReadSuccess, PlateReadFailed
+from diogen.common.letterbox import LetterboxTransform
 
 IMG_SIZE = 480
 MIN_CONF = 0.75
@@ -37,11 +37,18 @@ class CRNN(nn.Module):
 
         # CNN-бэкбон: resnet18
         resnet = resnet18(weights=ResNet18_Weights.DEFAULT)
-        resnet.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(1, 1), padding=(3, 3), bias=False, dilation=2)
-        resnet.maxpool = nn.Identity() # type: ignore
+        resnet.conv1 = nn.Conv2d(
+            1,
+            64,
+            kernel_size=(7, 7),
+            stride=(1, 1),
+            padding=(3, 3),
+            bias=False,
+            dilation=2,
+        )
+        resnet.maxpool = nn.Identity()  # type: ignore
         self.cnn = nn.Sequential(
-            *list(resnet.children())[:-2],
-            nn.AdaptiveMaxPool2d((1, None))
+            *list(resnet.children())[:-2], nn.AdaptiveMaxPool2d((1, None))
         )
 
         # BiLSTM + Dropout
@@ -107,7 +114,10 @@ class PlateReader:
         # imgs: (B, 3, H, W)
         letterbox = LetterboxTransform(imgs, IMG_SIZE)
         results = self.detect_model.predict(
-            letterbox.resized, imgsz=IMG_SIZE, conf=MIN_CONF, 
+            letterbox.resized,
+            imgsz=IMG_SIZE,
+            conf=MIN_CONF,
+            verbose=False,
         )
 
         imgs_plates = []
@@ -117,7 +127,7 @@ class PlateReader:
                 continue
             boxes = result.boxes.cpu()
 
-            original_boxes = letterbox.reverse_boxes(batch_idx, boxes.xyxy) # type: ignore
+            original_boxes = letterbox.reverse_boxes(batch_idx, boxes.xyxy)  # type: ignore
 
             plates: List[Plate] = []
             for xyxy in original_boxes:
@@ -137,7 +147,11 @@ class PlateReader:
                 logits = self.crnn(plate_tensor)
                 number, confidence = self.crnn.decode_with_confidence(logits)[0]
 
-                if confidence < MIN_CONF or number == "" or not is_plausible_plate(number):
+                if (
+                    confidence < MIN_CONF
+                    or number == ""
+                    or not is_plausible_plate(number)
+                ):
                     plates.append(
                         Plate(
                             xyxy=((x1, y1), (x2, y2)),
@@ -149,7 +163,9 @@ class PlateReader:
                         Plate(
                             xyxy=((x1, y1), (x2, y2)),
                             read_attempt=PlateReadSuccess(
-                                read_status="success", number=number, confidence=confidence
+                                read_status="success",
+                                number=number,
+                                confidence=confidence,
                             ),
                         )
                     )
