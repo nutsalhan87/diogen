@@ -21,3 +21,8 @@ parser.add_argument(
     action="store_true",
     help="Использовать ли ускоритель, если он доступен.",
 )
+parser.add_argument(
+    "-r",
+    "--registry-server",
+    type=str, default="127.0.0.1:9000", help="Адрес сервера реестра с типами ТС."
+)

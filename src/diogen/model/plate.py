@@ -10,7 +10,7 @@ from diogen.common.types import Plate, PlateReadSuccess, PlateReadFailed
 from diogen.common.letterbox import LetterboxTransform
 
 IMG_SIZE = 480
-MIN_CONF = 0.75
+MIN_CONF = 0.5
 DETECT_MODEL_PATH = "models/yolo11s-plates.pt"
 READER_MODEL_PATH = "models/crnn-plates.pt"
 PLATE_INPUT_SIZE = [32, 150]  # [height, width]

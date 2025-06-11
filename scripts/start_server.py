@@ -12,4 +12,6 @@ if __name__ == "__main__":
     else:
         os.environ["DEVICE"] = "cpu"
 
+    os.environ["REGISTRY_URL"] = f"http://{args.registry_server}/get_info"
+
     uvicorn.run("server.api:app", host=args.host, port=args.port, workers=args.workers)
